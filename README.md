@@ -94,6 +94,28 @@ flowchart TD
 
 ---
 
+## 📸 Dashboard Previews
+
+### Logtide – Centralized Logging
+![Logtide Dashboard](./screenshots/logtide-dashboard.png)
+
+### Suricata Alerts integrated into Logtide
+![Suricata Alerts](./screenshots/suricata-alerts.png)
+
+### Netdata – System Metrics
+![Netdata Overview](./screenshots/netdata-overview.png)
+
+### Uptime Kuma – Status Page
+![Uptime Kuma Status](./screenshots/uptime-kuma-status.png)
+
+### Portainer – Container Management
+![Portainer Containers](./screenshots/portainer-containers.png)
+
+### Architecture Diagram
+![Architecture Diagram](./asset/architecture-diagram.png)
+
+---
+
 ## 📂 Repository Structure
 
 > The full repository structure is available in the project tree. Key directories include `services/` (each service isolated with its own `docker-compose.yml`), `scripts/`, `configs/` and `docs/`. All secrets are managed via environment variables.
