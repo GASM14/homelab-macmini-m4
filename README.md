@@ -7,6 +7,7 @@ Configuration and documentation of my 24/7 homelab running on **Mac Mini M4**, *
 ![Docker](https://img.shields.io/badge/docker-25%2B_services-2496ED?logo=docker)
 ![Tailscale](https://img.shields.io/badge/tailscale-secure-000000?logo=tailscale)
 ![Career Transition](https://img.shields.io/badge/career-transition--into--cybersecurity-00B4D8?style=flat-square)
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 > **🚀 Transitioning into Cybersecurity** • This homelab is my hands-on lab for mastering **network security**, **observability**, **log analysis**, and **infrastructure automation** — bridging the gap between theory and practice.
 
@@ -208,4 +209,4 @@ Feedback, suggestions, and collaboration are welcome.
 
 - **LinkedIn:** [linkedin.com/in/gonçalo-marçalo-57a996190](https://www.linkedin.com/in/gonçalo-marçalo-57a996190)
 - **Email:** [gonsaloam@outlook.pt](mailto:gonsaloam@outlook.pt)
-- **CV / Resume:** [Download PDF](./Goncalo_Marcalo_CV_2026.pdf)
+- **CV / Resume:** [Download PDF](./Goncalo_Marcalo_CV_Short_EN.pdf)
