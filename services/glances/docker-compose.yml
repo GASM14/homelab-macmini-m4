@@ -1,0 +1,39 @@
+services:
+  tailscale-glances:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-glances
+    hostname: glances
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=glances
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+    dns:
+      - 100.100.100.100
+
+  glances:
+    image: nicolargo/glances:latest
+    container_name: glances
+    restart: unless-stopped
+    network_mode: "service:tailscale-glances"
+    depends_on:
+      - tailscale-glances
+    privileged: true          # necessário para aceder a métricas do sistema
+    pid: "host"               # necessário para ver todos os processos
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./config/glances.conf:/glances/conf/glances.conf:ro   # <--- MONTAGEM CORRECTA
+      - /Volumes/CrucialX9:/Volumes/CrucialX9:ro   # <-- monta o disco externo
+      - /Volumes/Sandisk64:/Volumes/Sandisk64:ro   # <-- monta o disco externo
+    environment:
+      - GLANCES_OPT=-w -C /glances/conf/glances.conf      # inicia no modo web
+      - TZ=Europe/Lisbon
+      

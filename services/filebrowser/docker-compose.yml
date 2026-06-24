@@ -1,0 +1,34 @@
+services:
+  tailscale-filebrowser:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-filebrowser
+    hostname: files
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=files
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+
+  filebrowser:
+    image: filebrowser/filebrowser:latest
+    container_name: filebrowser
+    restart: unless-stopped
+    network_mode: "service:tailscale-filebrowser"
+    depends_on:
+      - tailscale-filebrowser
+    volumes:
+      - ./filebrowser-data:/database  # stores users & settings
+      - "/Volumes/CrucialX9/Photos:/srv/Photos:rw"
+      - "/Volumes/CrucialX9/photoprism:/srv/photoprism:rw"
+      - "/Volumes/CrucialX9:/srv/CrucialX9:rw"
+      - "/Volumes/Sandisk64:/srv/Sandisk64:rw"
+    environment:
+      - TZ=Europe/Lisbon

@@ -1,0 +1,41 @@
+services:
+  tailscale-suricata:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-suricata
+    hostname: suricata
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=suricata
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale_suricata:/var/lib/tailscale
+    networks:
+      - suricata-network
+
+  suricata:
+    image: jasonish/suricata:latest
+    container_name: suricata
+    restart: unless-stopped
+    network_mode: "service:tailscale-suricata"
+    cap_add:
+      - NET_ADMIN
+      - SYS_NICE
+      - SYS_RESOURCE
+    volumes:
+      - ./suricata.yaml:/etc/suricata/suricata.yaml
+      - ./rules:/var/lib/suricata/rules
+      - ./suricata_logs:/var/log/suricata 
+    command: -i eth0   # ou tun0 (verifica com ifconfig dentro do container)
+    depends_on:
+      - tailscale-suricata
+
+networks:
+  suricata-network:
+    driver: bridge

@@ -1,0 +1,36 @@
+%YAML 1.1
+---
+vars:
+  address-groups:
+    HOME_NET: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+    EXTERNAL_NET: "!$HOME_NET"
+  port-groups:
+    HTTP_PORTS: "80"
+    SHELLCODE_PORTS: "!80"
+
+default-rule-path: /var/lib/suricata/rules
+rule-files:
+  - local.rules  
+  - emerging.rules   # se tiveres regras (podes usar as da comunidade)
+
+af-packet:
+  - interface: eth0
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+    use-mmap: yes
+    tpacket-v3: yes
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert
+        - http
+        - dns
+        - tls
+
+logging:
+  default-log-level: info

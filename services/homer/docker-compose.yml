@@ -1,0 +1,42 @@
+services:
+  tailscale-homer:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-homer
+    hostname: home                       # MagicDNS: home.taila951c1.ts.net
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=home
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+    dns:
+      - 100.100.100.100
+
+  homer:
+    image: b4bz/homer:latest
+    container_name: homer
+    restart: unless-stopped
+    network_mode: "service:tailscale-homer"
+    depends_on:
+      - tailscale-homer
+    volumes:
+      - ./config/config.yml:/www/assets/config.yml   # direct file mount
+    environment:
+      - TZ=Europe/Lisbon
+
+  bridge:
+    build: ./bridge
+    container_name: ukbridge
+    restart: unless-stopped
+    network_mode: "service:tailscale-homer"   # same network as Homer
+    depends_on:
+      - tailscale-homer
+    environment:
+      - PYTHONUNBUFFERED=1

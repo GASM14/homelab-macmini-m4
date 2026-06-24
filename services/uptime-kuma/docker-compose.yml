@@ -1,0 +1,30 @@
+services:
+  tailscale-kuma:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-kuma
+    hostname: kuma                          # MagicDNS: kuma.taila951c1.ts.net
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=kuma
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+    dns:
+      - 100.100.100.100       # <-- Add this
+
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    container_name: uptime-kuma
+    restart: unless-stopped
+    network_mode: "service:tailscale-kuma"   # shares the Tailscale container's network
+    depends_on:
+      - tailscale-kuma
+    volumes:
+      - ./data:/app/data

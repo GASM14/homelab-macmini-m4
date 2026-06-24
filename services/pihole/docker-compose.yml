@@ -1,0 +1,98 @@
+services:
+  tailscale-pihole:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-pihole
+    hostname: pihole
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=pihole
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+    ports:
+      - "5353:53/udp"
+      - "5353:53/tcp"
+    networks:
+      pihole_net:
+        ipv4_address: 172.31.0.4
+
+  unbound:
+    image: klutchell/unbound:latest
+    container_name: unbound
+    restart: unless-stopped
+    networks:
+      pihole_net:
+        ipv4_address: 172.31.0.2
+    volumes:
+      - ./unbound.conf:/etc/unbound/custom.conf.d/unbound.conf
+
+  pihole:
+    image: pihole/pihole:latest
+    container_name: pihole
+    restart: unless-stopped
+    network_mode: "service:tailscale-pihole"
+    depends_on:
+      - tailscale-pihole
+    environment:
+      - FTLCONF_webserver_listeningMode=all
+      - TZ=Europe/Lisbon
+      - WEBPASSWORD=YOUR_PIHOLE_PASSWORD
+      - PIHOLE_DNS_=172.31.0.2#53
+    volumes:
+      - './etc-pihole:/etc/pihole'
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --interval 86400 --cleanup
+    environment:
+      - DOCKER_API_VERSION=1.44
+
+  tailscale-portainer:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-portainer
+    hostname: portainer
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=portainer
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale-portainer:/var/lib/tailscale
+
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    network_mode: "service:tailscale-portainer"
+    depends_on:
+      - tailscale-portainer
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+
+volumes:
+  portainer_data:
+
+networks:
+  pihole_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.31.0.0/24

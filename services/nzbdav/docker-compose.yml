@@ -1,0 +1,23 @@
+services:
+  nzbdav:
+    image: nzbdav/nzbdav:latest       # imagem oficial e pública
+    container_name: nzbdav
+    restart: unless-stopped
+    mem_limit: 1024M
+    networks:
+      - aiostreams_default
+    dns:
+      - 100.100.100.100
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Lisbon
+    volumes:
+      - ./config:/config               # guarda as definições do nzbDAV
+    ports:
+      - "3000:3000"
+      - "8080:8080"   # endpoint de saúde
+
+networks:
+  aiostreams_default:
+    external: true

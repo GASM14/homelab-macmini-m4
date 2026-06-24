@@ -1,0 +1,40 @@
+services:
+  tailscale-photoprism:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-photoprism
+    hostname: photos                          # <-- MagicDNS: photos.taila951c1.ts.net
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=photos
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+
+  photoprism:
+    image: photoprism/photoprism:latest
+    container_name: photoprism
+    restart: unless-stopped
+    network_mode: "service:tailscale-photoprism"   # partilha a rede do Tailscale
+    mem_limit: 1536M            # <-- add this line
+    depends_on:
+      - tailscale-photoprism
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    environment:
+      PHOTOPRISM_ADMIN_PASSWORD: "G45M!14S3t1999"
+      PHOTOPRISM_SITE_URL: "https://photos.taila951c1.ts.net/"  # <-- actualizado
+      PHOTOPRISM_READONLY: "false"
+      PHOTOPRISM_DISABLE_TLS: "true"
+      PHOTOPRISM_DATABASE_DRIVER: "sqlite"
+      PHOTOPRISM_STORAGE_PATH: "/photoprism/storage"
+    volumes:
+      - "/Volumes/CrucialX9/Photos:/photoprism/originals"
+      - "/Volumes/CrucialX9/photoprism/storage:/photoprism/storage"

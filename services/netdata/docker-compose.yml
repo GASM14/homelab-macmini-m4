@@ -1,0 +1,46 @@
+services:
+  tailscale-netdata:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-netdata
+    hostname: netdata
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=netdata
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+    networks:
+      - netdata-network
+
+  netdata:
+    image: netdata/netdata:latest
+    container_name: netdata
+    restart: unless-stopped
+    network_mode: "service:tailscale-netdata"
+    depends_on:
+      - tailscale-netdata
+    cap_add:
+      - SYS_PTRACE
+      - SYS_ADMIN
+    security_opt:
+      - apparmor:unconfined
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - TZ=Europe/Lisbon
+      - NETDATA_CLAIM_URL=https://app.netdata.cloud  # opcional (se quiser cloud)
+      # NETDATA_CLAIM_TOKEN=...                       # opcional
+      # NETDATA_CLAIM_ROOMS=...                       # opcional
+
+networks:
+  netdata-network:
+    driver: bridge

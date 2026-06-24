@@ -1,0 +1,37 @@
+services:
+  tailscale-aiostreams:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-aiostreams
+    hostname: streams
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=streams
+      - TS_ACCEPT_DNS=false
+    volumes:
+      - ./tailscale:/var/lib/tailscale
+    dns:
+      - 100.100.100.100
+
+  aiostreams:
+    image: ghcr.io/viren070/aiostreams:latest
+    container_name: aiostreams
+    restart: unless-stopped
+    network_mode: "service:tailscale-aiostreams"
+    depends_on:
+      - tailscale-aiostreams
+    environment:
+      - SECRET_KEY=YOUR_SECRET_KEY
+      - PORT=3000
+      - BASE_URL=https://streams.taila951c1.ts.net   # <-- add this
+      - MAX_ADDONS=30  # <-- Add this line. This raises the addon limit beyond the default of 15[reference:0].
+      - ALTPASS=14S3t1999GM!  # <-- Add this line. This provides the "API key" credential the service form requires, even if AltMount itself doesn't use it[reference:1].
+      - AIOSTREAMS_AUTH=proxyuser:proxypass 
+    volumes:
+      - ./config:/app/config

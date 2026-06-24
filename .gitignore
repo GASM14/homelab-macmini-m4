@@ -1,0 +1,30 @@
+# Secrets & environment
+*.env
+.env
+*.key
+*.pem
+*.crt
+
+# Tailscale state directories
+**/tailscale_*/
+**/tailscale/
+
+# Persistent volumes / data
+**/data/
+**/config/
+**/storage/
+**/postgres_data/
+**/suricata_logs/
+
+# Logs
+*.log
+eve.json
+
+# macOS
+.DS_Store
+Thumbs.db
+
+# Temporary / backup
+*~
+*.swp
+*.bak

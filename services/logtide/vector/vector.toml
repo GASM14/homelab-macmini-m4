@@ -1,0 +1,119 @@
+[sources.tail_system]
+type = "file"
+include = ["/var/log/system.log", "/var/log/*.log"]
+read_from = "end"
+
+[sources.tail_colima]
+type = "file"
+include = ["/Users/goncalomarcalo/.colima/default/*.log"]
+read_from = "beginning"
+
+[sources.tail_suricata]
+type = "file"
+include = ["/var/log/suricata/eve.json"]
+read_from = "beginning"
+
+[api]
+enabled = true
+address = "0.0.0.0:8686"
+
+[sources.tail_docker]
+type = "file"
+include = [
+    "/var/lib/docker/containers/622e2049b24fc99d232f561791653837427df29cba698a057b6ee782a3c65106/*.log",  # test-log
+    "/var/lib/docker/containers/fb3e52b7609637b457b607c1908c3b92d38b8aa4f89961b4eee6dbabb46abe06/*.log"   # backend
+]
+read_from = "end"
+
+
+[transforms.parse_docker]
+type = "remap"
+inputs = ["tail_docker"]
+source = '''
+parsed = parse_json(.message) ?? {}
+. = merge!(., parsed)
+'''
+
+[transforms.add_fields]
+type = "remap"
+inputs = ["tail_system", "tail_colima", "parse_docker"]
+source = '''
+.level = "info"
+if exists(.stream) && .stream == "stderr" {
+    .level = "error"
+}
+.service = "unknown"
+if contains!(.file, "system.log") {
+    .service = "system"
+} else if contains!(.file, "colima") {
+    .service = "colima"
+} else if contains!(.file, "docker") {
+    .service = "docker"
+}
+'''
+
+[transforms.parse_suricata]
+type = "remap"
+inputs = ["tail_suricata"]
+source = '''
+parsed = parse_json(.message) ?? {}
+if parsed.event_type == "alert" {
+    .message = if exists(parsed.alert.signature) { parsed.alert.signature } else { "Suricata alert" }
+    .level = "warning"
+    .service = "suricata"
+    .src_ip = if exists(parsed.src_ip) { parsed.src_ip } else { "" }
+    .dest_ip = if exists(parsed.dest_ip) { parsed.dest_ip } else { "" }
+    .proto = if exists(parsed.proto) { parsed.proto } else { "" }
+    .timestamp = if exists(parsed.timestamp) { parsed.timestamp } else { now() }
+} else {
+    abort
+}
+'''
+
+[transforms.format_for_ingest]
+type = "remap"
+inputs = ["add_fields", "parse_suricata"]
+source = '''
+msg = if exists(.message) {
+    .message
+} else if exists(.log) {
+    .log
+} else {
+    ""
+}
+
+ts = if exists(.timestamp) {
+    .timestamp
+} else {
+    now()
+}
+
+log_entry = {
+    "message": msg,
+    "timestamp": ts,
+    "level": .level,
+    "service": .service
+}
+. = [log_entry]
+'''
+
+[sinks.logtide]
+type = "http"
+inputs = ["format_for_ingest"]
+uri = "http://172.24.0.3:8080/api/v1/ingest"
+method = "post"
+
+[sinks.logtide.request]
+headers.X-API-Key = "YOUR_LOGTIDE_API_KEY"
+headers.Content-Type = "application/json"
+
+[sinks.logtide.encoding]
+codec = "json"
+
+[sinks.logtide.batch]
+timeout_secs = 1
+
+[sinks.debug]
+type = "console"
+inputs = ["format_for_ingest"]
+encoding.codec = "json"
