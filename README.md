@@ -55,6 +55,8 @@ This homelab runs 24/7 on an **Apple Mac Mini M4**, designed for:
 | **Logtide** | Centralized logging platform + Sigma rule engine |
 | **Suricata** | IDS/IPS (Intrusion Detection/Prevention System) |
 | **Prometheus + Grafana** | Metrics collection and dashboards *(optional)* |
+| **Vaultwarden** | Self-hosted password manager (Bitwarden compatible) |
+| **Navidrome** | Personal music streaming server (Subsonic compatible) |
 | *(+ supporting services)* | Tailscale sidecars, helpers, backups |
 
 ## 🔒 Network Architecture
