@@ -138,10 +138,7 @@ flowchart TD
 │   │   └── docker-compose.yml
 │   ├── logtide/
 │   │   ├── docker-compose.simple.yml
-│   │   ├── .env.example
 │   │   └── vector/vector.toml
-│   ├── navidrome/
-│   │   └── docker-compose.yml
 │   ├── netdata/
 │   │   └── docker-compose.yml
 │   ├── nzbdav/
@@ -149,25 +146,25 @@ flowchart TD
 │   ├── photoprism/
 │   │   └── docker-compose.yml
 │   ├── pihole/
-│   │   ├── docker-compose.yml
-│   │   └── (includes Portainer, Watchtower, Unbound)
-│   ├── suwayomi/
 │   │   └── docker-compose.yml
 │   ├── suricata/
 │   │   ├── docker-compose.suricata.yml
 │   │   ├── suricata.yaml
 │   │   └── rules/local.rules
-│   ├── uptime-kuma/
-│   │   └── docker-compose.yml
-│   └── vaultwarden/
+│   └── uptime-kuma/
 │       └── docker-compose.yml
-├── scripts/
-│   ├── Startup_and_Tailscale_serve.sh
-│   ├── backup.sh
-│   ├── cleanup.sh
-│   └── monitor.sh
 ├── configs/
-│   └── (configuration files for various services)
+│   ├── homer/
+│   │   └── config.yml
+│   └── (other config files)
+├── scripts/
+│   ├── backup.sh
+│   ├── health-check.sh
+│   └── update-all.sh
+├── screenshots/
+│   └── (screenshots)
+├── asset/
+│   └── architecture-diagram.png
 └── docs/
     └── setup-guide.md
 ```
