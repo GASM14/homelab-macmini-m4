@@ -46,7 +46,6 @@ This homelab runs 24/7 on an **Apple Mac Mini M4**, designed for:
 | **Uptime Kuma** | Uptime checks, push/email alerts |
 | **Netdata** | Real-time metrics and dashboards |
 | **PhotoPrism** | AI-powered photo management |
-| **Mealie** | Recipe and meal planning |
 | **Glances** | Lightweight system monitoring |
 | **AIOStreams** | Media stream aggregation |
 | **Watchtower** | Automated container updates |
@@ -129,45 +128,46 @@ flowchart TD
 ├── .env.example
 ├── .gitignore
 ├── services/
-│   ├── pihole/
+│   ├── aiostreams/
 │   │   └── docker-compose.yml
-│   ├── portainer/
-│   │   └── docker-compose.yml
-│   ├── uptime-kuma/
-│   │   └── docker-compose.yml
-│   ├── netdata/
-│   │   └── docker-compose.yml
-│   ├── photoprism/
-│   │   └── docker-compose.yml
-│   ├── mealie/
+│   ├── filebrowser/
 │   │   └── docker-compose.yml
 │   ├── glances/
 │   │   └── docker-compose.yml
-│   ├── aiostreams/
-│   │   └── docker-compose.yml
-│   ├── watchtower/
-│   │   └── docker-compose.yml
-│   ├── caddy/
+│   ├── homer/
 │   │   └── docker-compose.yml
 │   ├── logtide/
 │   │   ├── docker-compose.simple.yml
 │   │   ├── .env.example
 │   │   └── vector/vector.toml
+│   ├── navidrome/
+│   │   └── docker-compose.yml
+│   ├── netdata/
+│   │   └── docker-compose.yml
+│   ├── nzbdav/
+│   │   └── docker-compose.yml
+│   ├── photoprism/
+│   │   └── docker-compose.yml
+│   ├── pihole/
+│   │   ├── docker-compose.yml
+│   │   └── (includes Portainer, Watchtower, Unbound)
+│   ├── suwayomi/
+│   │   └── docker-compose.yml
 │   ├── suricata/
 │   │   ├── docker-compose.suricata.yml
 │   │   ├── suricata.yaml
 │   │   └── rules/local.rules
-│   └── monitoring/
-│       └── docker-compose.monitoring.yml
+│   ├── uptime-kuma/
+│   │   └── docker-compose.yml
+│   └── vaultwarden/
+│       └── docker-compose.yml
 ├── scripts/
+│   ├── Startup_and_Tailscale_serve.sh
 │   ├── backup.sh
 │   ├── cleanup.sh
 │   └── monitor.sh
 ├── configs/
-│   ├── caddy/
-│   │   └── Caddyfile.example
-│   └── pihole/
-│       └── setup.example.sh
+│   └── (configuration files for various services)
 └── docs/
     └── setup-guide.md
 ```
