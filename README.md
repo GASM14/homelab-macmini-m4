@@ -209,4 +209,4 @@ Feedback, suggestions, and collaboration are welcome.
 
 - **LinkedIn:** [linkedin.com/in/gonçalo-marçalo-57a996190](https://www.linkedin.com/in/gonçalo-marçalo-57a996190)
 - **Email:** [gonsaloam@outlook.pt](mailto:gonsaloam@outlook.pt)
-- **CV / Resume:** [Download PDF](./Goncalo_Marcalo_CV_Short_EN.pdf)
+- **CV / Resume:** [Download PDF](https://github.com/GASM14/homelab-macmini-m4/blob/main/CV_Goncalo_Marcalo.pdf)
