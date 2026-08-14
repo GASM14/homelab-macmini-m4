@@ -1,0 +1,7 @@
+# DNS redirection (Mac Mini M4 homelab)
+# TCP -> Docker published port (Pi-hole via Colima)
+rdr pass on en0 inet proto tcp from any to any port 53 -> 127.0.0.1 port 5355
+rdr pass on lo0 inet proto tcp from any to any port 53 -> 127.0.0.1 port 5355
+# UDP -> dnsmasq proxy (host, Homebrew service)
+rdr pass on en0 inet proto udp from any to any port 53 -> 127.0.0.1 port 9053
+rdr pass on lo0 inet proto udp from any to any port 53 -> 127.0.0.1 port 9053

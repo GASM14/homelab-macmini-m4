@@ -59,17 +59,16 @@ This homelab runs 24/7 on an **Apple Mac Mini M4**, designed for:
 | *(+ supporting services)* | Tailscale sidecars, helpers, backups |
 
 ## 🔒 Network Architecture
-
-```mermaid
-flowchart TD
-  A[Internet] --> B[Tailscale: WireGuard Mesh VPN + MagicDNS]
-  B --> C[Mac Mini M4 - Host macOS]
-  C --> D[Colima VM - Linux]
-  D --> E[Docker Containers - 25+ Services]
-  E --> F[Pi-hole · dnsmasq · pf Firewall]
-  F --> G[Monitoring Stack: Uptime Kuma · Netdata · Glances]
-  G --> H[Security Stack: Vector · Logtide · Suricata · Sigma]
 ```
+Internet
+└─ Vodafone (192.168.1.1) — modem + DMZ, Wi-Fi OFF
+└─ Mercusys BE9300 (192.168.0.1) — NAT + Wi-Fi tri-band
+└─ Mac Mini M4 (192.168.0.10)
+├─ pf :53 → TCP 5355 (Docker) / UDP 9053 (dnsmasq)
+├─ dnsmasq :9053 → Tailscale → Pi-hole + Unbound
+└─ Colima VM → 25+ containers
+```
+> Details: [docs/network-migration-mercusys.md](docs/network-migration-mercusys.md) · Usenet: [docs/usenet-strategy.md](docs/usenet-strategy.md)
 
 ## 🔐 Key Security Highlights
 
@@ -153,6 +152,10 @@ flowchart TD
 │   │   └── rules/local.rules
 │   └── uptime-kuma/
 │       └── docker-compose.yml
+├── network/
+│   ├── pf.anchors/
+│   │   └── pihole
+│   └── dnsmasq.conf
 ├── configs/
 │   ├── homer/
 │   │   └── config.yml
@@ -166,7 +169,9 @@ flowchart TD
 ├── asset/
 │   └── architecture-diagram.png
 └── docs/
-    └── setup-guide.md
+    ├── setup-guide.md
+    ├── network-migration-mercusys.md
+    └── usenet-strategy.md
 ```
 
 > **Service Isolation:** Each service runs in its own directory with a dedicated `docker-compose.yml`. All secrets are managed via environment variables (see `.env.example`).
