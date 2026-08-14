@@ -25,6 +25,8 @@ This homelab runs 24/7 on an **Apple Mac Mini M4**, designed for:
 - **Security & Logging Stack** with Vector + Logtide + Suricata + Sigma Rules
 - **Automation** with Bash scripts + Watchtower
 
+> 📘 **Quick start:** see [docs/setup-guide.md](docs/setup-guide.md) for the full zero-to-running guide (physical network + containers).
+
 ## 🛠️ Hardware & Host Specifications
 
 | Component | Specification |

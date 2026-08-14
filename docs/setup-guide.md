@@ -10,133 +10,60 @@ This guide walks through the setup of the full monitoring and security stack.
 
 ---
 
-## Step-by-step
+## 🌐 Network Setup (Physical Layer)
 
-### 1. Clone this repository
+Before starting the containers, configure the physical network topology.
 
-```bash
-git clone https://github.com/GASM14/homelab-macmini-m4.git
-cd homelab-macmini-m4
-```
+### 1. Configure ISP router (Vodafone) as modem + DMZ
 
-### 2. Configure environment variables
+Access `http://192.168.1.1` → **Expert Mode** → **DMZ**:
 
-Copy the global `.env.example` to `.env` and fill in your secrets:
-
-```bash
-cp .env.example .env
-nano .env
-```
-
-You also need to configure the `services/logtide/.env`:
-
-```bash
-cd services/logtide
-cp .env.example .env
-nano .env
-```
-
-### 3. Start the services
-
-You can start all services individually, or use the provided script:
-
-```bash
-# Example: start Logtide
-docker compose -f services/logtide/docker-compose.simple.yml up -d
-
-# Start Suricata
-docker compose -f services/suricata/docker-compose.suricata.yml up -d
-
-# Start Netdata
-docker compose -f services/netdata/docker-compose.yml up -d
-```
-
-Or, use the update script to start everything:
-
-```bash
-./scripts/update-all.sh
-```
-
-### 4. Verify the services are running
-
-```bash
-./scripts/health-check.sh
-```
-
-### 5. Access the web interfaces (via Tailscale)
-
-| Service | URL (Tailscale) |
+| Setting | Value |
 | :--- | :--- |
-| **Logtide** | `https://logtide.tailscale-host.ts.net` |
-| **Netdata** | `https://netdata.tailscale-host.ts.net` |
-| **Suricata** | (CLI only, or via logs) |
-| **Pi-hole** | `https://pihole.tailscale-host.ts.net/admin` |
-| **Uptime Kuma** | `https://uptime-kuma.tailscale-host.ts.net` |
+| DMZ enabled | `ON` |
+| DMZ IP | `192.168.1.95` |
+| Wi-Fi radios (all bands) | `OFF` |
 
----
+> The ISP router becomes a pure modem. Its Wi-Fi creates co-channel
+> interference with your own router — always disable it.
 
-## 🧪 Troubleshooting
+### 2. Configure your own router (Mercusys BE9300)
 
-### ❌ Suricata is restarting
+Access `http://192.168.0.1` (or `http://mwlogin.net`):
 
-Check the logs:
+**WAN:**
+- Connection type: `Dynamic IP`
+- WAN IP (reserved at ISP router): `192.168.1.95`
+- MAC address: `08:8A:F1:07:D4:CB` (reserve this MAC at the ISP DHCP)
 
-```bash
-docker logs suricata --tail 50
-```
+**LAN / Wi-Fi bands:**
 
-Common causes:
+| Band | SSID | Security | Bandwidth | Channel | Purpose |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| 2.4 GHz | `MERCUSYS_D4CA` | WPA2-PSK | 20 MHz | 6 | IoT devices (Aimor, Xiaomi, etc.) |
+| 5 GHz | `MERCUSYS_D4CA_5G` | WPA3-SAE | 80 MHz | auto | Laptops, TV, consoles |
+| 6 GHz | `MERCUSYS_D4CA_6G` | WPA3-SAE | 160 MHz | auto | iPhone 15 Pro Max, Mac Mini Wi-Fi 6E |
 
-- Interface `eth0` not found → try `-i tun0` in the `docker-compose.suricata.yml`.
-- Permission errors on `suricata.yaml` → ensure the file is not mounted as `:ro`.
+> **Why 20 MHz on 2.4 GHz?** IoT devices have weak radios.
+> Narrow bandwidth = better sensitivity = stable connections.
 
-### ❌ Vector cannot connect to Logtide
+### 3. DHCP reservations (Mercusys → LAN)
 
-- Check if the IP in `uri` is correct.
-- Verify that the API key is valid and has the `ingest` permission.
-- Ensure both containers are on the same Docker network:
+| Device | MAC | IP |
+| :--- | :--- | :--- |
+| Mac Mini M4 (Ethernet) | *(check Settings → Network)* | `192.168.0.10` |
+| Mercusys WAN (at Vodafone DHCP) | `08:8A:F1:07:D4:CB` | `192.168.1.95` |
 
-```bash
-docker inspect vector | grep Network
-docker inspect logtide-simple-backend | grep Network
-```
+### 4. Verify single NAT
 
-### ❌ Logtide shows `401` or `404` in the UI
-
-- Make sure you have created an API key with the correct permissions.
-- Check that `API_KEY_SECRET` and `INTERNAL_API_KEY` are set correctly in `docker-compose.simple.yml`.
-
-### ❌ "Connection refused" when accessing a service
-
-- Confirm that the service is running (`docker ps`).
-- Check that the Tailscale sidecar is healthy.
-- Verify the service is listening on `0.0.0.0` (not `127.0.0.1`).
-
----
-
-## 📦 Backup and maintenance
-
-Use the provided scripts:
+From the Mac Mini:
 
 ```bash
-./scripts/backup.sh          # backup all configs
-./scripts/update-all.sh      # pull and restart all services
-./scripts/health-check.sh    # check all container health
+# Should show ONE private hop (192.168.0.1) before your public IP
+traceroute -n 8.8.8.8 | head -5
 ```
 
-You can schedule these with `cron` or `launchd`.
+If you see two private IPs (192.168.0.1 AND 192.168.1.1), DMZ is misconfigured and you have double NAT — gaming NAT type and port forwarding will suffer.
 
----
+> For the full rationale (why DMZ, why disable ISP Wi-Fi, DNS chain details), see [network-migration-mercusys.md](network-migration-mercusys.md).
 
-## 🛡️ Security best practices
-
-- Never commit `.env` files or any file containing real secrets.
-- Rotate API keys periodically.
-- Keep Tailscale and Docker updated.
-- Use separate Tailscale auth keys for each service (if possible).
-
----
-
-## 💬 Need help?
-
-Open an issue on GitHub or reach out via email or LinkedIn.
