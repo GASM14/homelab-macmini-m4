@@ -2,15 +2,22 @@
 
 ## Topology (post-migration)
 
-```Internet
+```
+Internet
 └─ Vodafone router (192.168.1.1) — modem mode + DMZ → 192.168.1.95, Wi-Fi OFF
 └─ Mercusys BE9300 (192.168.0.1) — firewall, NAT, tri-band Wi-Fi
 ├─ 2.4 GHz (WPA2, 20 MHz, ch 6) → IoT devices
 ├─ 5/6 GHz → laptops, phones, consoles
-└─ LAN → Mac Mini M4 (192.168.0.10, DHCP reservation)```
+└─ LAN → Mac Mini M4 (192.168.0.10, DHCP reservation)
+```
+
+
 ## DNS chain
-```client :53 → pf rdr → 127.0.0.1:9053 (dnsmasq, Homebrew service)
-→ Tailscale → Pi-hole + Unbound (tailnet IP) → filtered answers```
+
+```
+client :53 → pf rdr → 127.0.0.1:9053 (dnsmasq, Homebrew service)
+→ Tailscale → Pi-hole + Unbound (tailnet IP) → filtered answers
+```
 - TCP :53 → 127.0.0.1:5355 (Docker published port, legacy path)
 - UDP :53 → 127.0.0.1:9053 (dnsmasq — the reliable path)
 
