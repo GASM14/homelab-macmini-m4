@@ -10,7 +10,7 @@ services:
     devices:
       - /dev/net/tun
     environment:
-      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY
+      - TS_AUTH_KEY=YOUR_TAILSCALE_AUTH_KEY   # <-- a tua chave
       - TS_STATE_DIR=/var/lib/tailscale
       - TS_HOSTNAME=photos
       - TS_ACCEPT_DNS=false
@@ -21,20 +21,21 @@ services:
     image: photoprism/photoprism:latest
     container_name: photoprism
     restart: unless-stopped
-    network_mode: "service:tailscale-photoprism"   # partilha a rede do Tailscale
-    mem_limit: 1536M            # <-- add this line
+    network_mode: "service:tailscale-photoprism"
+    mem_limit: 3072M                      # era 1536M; o VM tem folga (~7G livres)
     depends_on:
       - tailscale-photoprism
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
     environment:
-      PHOTOPRISM_ADMIN_PASSWORD: "G45M!14S3t1999"
-      PHOTOPRISM_SITE_URL: "https://photos.taila951c1.ts.net/"  # <-- actualizado
+      PHOTOPRISM_ADMIN_PASSWORD: "CHANGE_ME"
+      PHOTOPRISM_SITE_URL: "https://photos.taila951c1.ts.net/"
       PHOTOPRISM_READONLY: "false"
       PHOTOPRISM_DISABLE_TLS: "true"
       PHOTOPRISM_DATABASE_DRIVER: "sqlite"
       PHOTOPRISM_STORAGE_PATH: "/photoprism/storage"
+      PHOTOPRISM_WORKERS: "1"             # serializa o indexing = picos menores
     volumes:
       - "/Volumes/CrucialX9/Photos:/photoprism/originals"
       - "/Volumes/CrucialX9/photoprism/storage:/photoprism/storage"

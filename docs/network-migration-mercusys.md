@@ -37,3 +37,9 @@ client :53 → pf rdr → 127.0.0.1:9053 (dnsmasq, Homebrew service)
 2. Keep ISP Wi-Fi radios OFF to avoid co-channel interference.
 3. Document IPs: gateway .1 (Mercusys), WAN .95, Mac .10, Pi-hole tailnet IP.
 4. Backups live in ~/Documents/Mine/Homelab/Backups (pf, dnsmasq, compose, IPs).
+
+## Pi-hole upstream (2026-08-18)
+
+- Pi-hole forwards exclusively to **Unbound** (`172.31.0.2#53`, klutchell/unbound on pihole_net).
+- Google (8.8.8.8/8.8.4.4) removed from Pi-hole upstreams — eliminates TCP burst errors and closes the privacy loop.
+- Household resilience kept at the router: Mercusys DHCP hands out primary 192.168.0.10, secondary 8.8.8.8 (only used if the homelab is down).
