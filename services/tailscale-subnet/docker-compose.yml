@@ -1,0 +1,23 @@
+services:
+  tailscale-subnet:
+    image: tailscale/tailscale:latest
+    container_name: tailscale-subnet
+    hostname: homelab-router
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun
+    environment:
+      - TS_AUTH_KEY=${TS_AUTH_KEY_SUBNET}
+      - TS_STATE_DIR=/var/lib/tailscale
+      - TS_HOSTNAME=${TS_HOSTNAME}
+      - TS_EXTRA_ARGS=--advertise-routes=192.168.0.0/24 --accept-dns=false
+      - TS_USERSPACE=true
+    volumes:
+      - ./state:/var/lib/tailscale
+    network_mode: host
+
+volumes:
+  state:
